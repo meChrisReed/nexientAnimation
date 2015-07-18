@@ -9,8 +9,7 @@ $(document).ready(function () {
 
 		// test specific
 		complexGeometry,
-		particles,
-		particleSystem;
+		particles;
 
 	// utils
 	function deg2rad (degrees) {
@@ -31,6 +30,7 @@ $(document).ready(function () {
 
 		renderer = new THREE.WebGLRenderer();
 		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setClearColor( 0xffffff, 1);
 		document.body.appendChild( renderer.domElement );
 	}());
 
@@ -46,38 +46,46 @@ $(document).ready(function () {
 		scene.add( directionalLight );
 	}());
 
-	(function initializeParticles () {
-		var maxPArticles = 150,
-			// from the center of the scene
-			upperDistance = 500,
-			lowwerDistance = 5,
+	function createParticle (maxPArticles, upperDistance, lowwerDistance) {
+		maxPArticles = maxPArticles || 1000;
+		// from the center of the scene
+		upperDistance = upperDistance || 800;
+		lowwerDistance = lowwerDistance || 5;
+		var showEnds = Math.round(Math.random()) % 2 ? upperDistance : -upperDistance;
 
-			particleMaterial = new THREE.ParticleBasicMaterial({ color: 0xeeeeee, size: 15, transparent: true });
+		function distribute () {
+			var invert = Math.round(Math.random()) % 2 ? -1 : 1;
+			return Math.round(Math.random() * upperDistance * invert + lowwerDistance);
+		}
+
+		var color = new THREE.Color().setHSL(0.039,1,0.5);
+		var particle = new THREE.Sprite(new THREE.SpriteMaterial( { color: color, size: 15} ));
+		particle.position.set(
+			distribute(),  // x
+			0, // y
+			0 // z
+		);
+		var scale = Math.random() * 30;
+		particle.scale.set(
+			scale,  // x
+			scale, // y
+			scale // z
+		);
+		scene.add(particle);
+		particles.vertices.push(particle);
+
+		if (particles.vertices.length < maxPArticles) {
+			return createParticle();
+		}
+	}
+
+	(function initializeParticles () {
 
 		particles = new THREE.Geometry();
 
-  	(function createParticle () {
-			var showEnds = Math.round(Math.random()) % 2 ? upperDistance : -upperDistance;
+  	createParticle();
 
-			function distribute () {
-				var invert = Math.round(Math.random()) % 2 ? -1 : 1;
-				return Math.round(Math.random() * upperDistance * invert + lowwerDistance);
-			}
-
-			var particle = new THREE.Vector3(
-				distribute(),  // x
-				0, // y
-				0 // z
-			);
-			particles.vertices.push(particle);
-
-			if (particles.vertices.length < maxPArticles) {
-				return createParticle();
-			}
-		}());
-
-		particleSystem = new THREE.ParticleSystem(particles, particleMaterial);
-		scene.add(particleSystem);
+		// scene.add(particles);
 	}());
 
 	(function render() {
@@ -93,7 +101,7 @@ $(document).ready(function () {
 				invert = Math.round(Math.random()) % 2 ? -val : 1;
 				return Math.round(Math.random() * force * invert);
 			}
-	    particleSystem.geometry.vertices.forEach(function (particle) {
+	    particles.vertices.forEach(function (particle) {
 				if (!particle.initialVector) {
 					particle.initialVector = {
 						x: flux(),
@@ -103,15 +111,24 @@ $(document).ready(function () {
 				}
 				if (
 					particle.noiseDestination &&
-					particle.noiseDuration > particle.startNoiseTransitionTime.getElapsedTime() * 1000
+					particle.noiseDuration > particle.startNoiseTransitionTime.getElapsedTime() * 10000
 				) {
 					(function () {
 						// get the amount to move based on the amount of time that has passed
-						var elapsedTime = particle.startNoiseTransitionTime.getElapsedTime() * 1000;
-						var movement = elapsedTime/particle.noiseDuration;
-						particle.x += (particle.noiseDestination.x - particle.x) * movement;
-						particle.y += (particle.noiseDestination.y - particle.y) * movement;
-						particle.z += (particle.noiseDestination.z - particle.z) * movement;
+						var elapsedTime = particle.startNoiseTransitionTime.getElapsedTime() * 10000;
+						var movement;
+
+						if (particle.lifeDuration < particle.life.getElapsedTime()) {
+							scene.remove(particle);
+							particles.vertices.splice(particles.vertices.indexOf(particle), 1);
+							return createParticle();
+						}
+						particle.material.opacity = 1 -(particle.life.getElapsedTime() / particle.lifeDuration);
+						movement = elapsedTime/particle.noiseDuration;
+
+						particle.position.x += (particle.noiseDestination.x - particle.position.x) * movement;
+						particle.position.y += (particle.noiseDestination.y - particle.position.y) * movement;
+						particle.position.z += (particle.noiseDestination.z - particle.position.z) * movement;
 					}());
 				} else {
 					(function setNewNoiseDestination () {
@@ -142,22 +159,28 @@ $(document).ready(function () {
 
 						var noiseValues = flux({
 							x: 0.9,
-							y: 0.2,
-							z: 0.2
-						}, 40);
+							y: 0.3,
+							z: 0.3
+						}, Math.random() * 30 + 5);
 
 						particle.noiseDestination = {
-							x: particle.x + noiseValues.x,
-							y: particle.y + noiseValues.y,
-							z: particle.z + noiseValues.z
+							x: particle.position.x + noiseValues.x,
+							y: particle.position.y + noiseValues.y,
+							z: particle.position.z + noiseValues.z
 						};
 						particle.startNoiseTransitionTime = new THREE.Clock();
 						particle.startNoiseTransitionTime.start();
-						particle.noiseDuration = Math.round(Math.random() * 150); // in miliseconds
+						particle.noiseDuration = Math.round(Math.random() * 2300) + 100; // in miliseconds
 					}());
+					if (!particle.life) {
+						particle.life =  new THREE.Clock();
+						particle.life.start();
+
+						particle.lifeDuration = (Math.random() * 3) + 0.6; // in mils
+					}
 				}
 			});
-			particleSystem.geometry.verticesNeedUpdate = true;
+			// particles.verticesNeedUpdate = true;
 		}());
 		renderer.render( scene, camera );
 	}());
