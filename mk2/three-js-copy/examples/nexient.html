@@ -45,7 +45,8 @@
 
     		// test specific
     		complexGeometry,
-    		particles;
+    		particles,
+				particleSystem;
 
     	// utils
     	function deg2rad (degrees) {
@@ -149,20 +150,16 @@
     			scale // z
     		);
     		scene.add(particle);
-    		particles.vertices.push(particle);
+    		particles.push(particle);
 
-    		if (particles.vertices.length < maxPArticles) {
+    		if (particles.length < maxPArticles) {
     			return createParticle();
     		}
     	}
 
     	(function initializeParticles () {
-
-    		particles = new THREE.Geometry();
-
+    		particles = [];
       	createParticle();
-
-    		// scene.add(particles);
     	}());
 
     	(function render() {
@@ -178,7 +175,7 @@
     				invert = Math.round(Math.random()) % 2 ? -val : 1;
     				return Math.round(Math.random() * force * invert);
     			}
-    	    particles.vertices.forEach(function (particle) {
+    	    particles.forEach(function (particle) {
     				if (!particle.initialVector) {
     					particle.initialVector = {
     						x: flux(),
@@ -197,7 +194,7 @@
 
     						if (particle.lifeDuration < particle.life.getElapsedTime()) {
     							scene.remove(particle);
-    							particles.vertices.splice(particles.vertices.indexOf(particle), 1);
+    							particles.splice(particles.indexOf(particle), 1);
     							return createParticle();
     						}
                 var ratio = (particle.life.getElapsedTime() / particle.lifeDuration);
