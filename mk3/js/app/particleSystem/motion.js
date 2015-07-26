@@ -1,6 +1,22 @@
-define(function () {
+define(['app/globals', 'app/particleSystem/init'],function (g, init) {
   var params,
-    createParticle;
+    defaultParams = {
+      noise: {
+        invertionFriction: {
+          x: 0.9,
+          y: 0.3,
+          z: 0.3
+        }
+      },
+      force: {
+        min: 0.01,
+        max: 0.7
+      },
+      timeToDestination: {
+        min: 6,
+        max: 11
+      }
+    };
 
     function matchPolarity (a, b) {
       if (
@@ -10,103 +26,76 @@ define(function () {
         return true;
       }
     }
+    function setNoise (particle) {
+      var fluxValues = {},
+        force = Math.random() * (params.force.max - params.force.min) + params.force.min;
 
-  return function (g, createParticleProgram, p) {
-    p = p || {
-      noise:{invertionFriction:{}},
-      force: {}
-    };
-    var motion;
-    if (!params) {
-      params = {
-        noise: {
-          invertionFriction: {
-            x: p.noise.invertionFriction.x || 0.9,
-            y: p.noise.invertionFriction.y || 0.3,
-            z: p.noise.invertionFriction.z || 0.3
-          }
-        },
-        force: {
-          min: p.force.min || 5,
-          max: p.force.max || 15
+      particle.initialVector = particle.initialVector || {};
+
+      Object.keys(params.noise.invertionFriction).forEach(function (axis) {
+        var baseFlux = Math.random() * (params.force.max - params.force.min) + params.force.min,
+          intermediate =  Math.round(baseFlux * 10),
+          invert = intermediate % 2 ? -1 : 1;
+
+        // compare force * invert with initialVector
+        particle.initialVector[axis] = particle.initialVector[axis] || baseFlux * invert;
+        if (!matchPolarity(baseFlux * invert, particle.initialVector[axis])) {
+          invert *= params.noise.invertionFriction[axis];
         }
-      };
+        fluxValues[axis] = baseFlux * invert;
+      });
+      particle.lastPosition = particle.position;
+      particle.noiseDuration = particle.noiseDuration || Math.random() * (params.timeToDestination.max - params.timeToDestination.min) + params.timeToDestination.min;
+      particle.remainingNoise = particle.noiseDuration;
+      particle.noiseVector = fluxValues;
     }
-    if (!createParticle) {
-      createParticle = createParticleProgram || require(['app/particleSystem/createParticle']);
-    }
-    motion = {
-      noise: function (particle) {
-        var fluxValues = {},
-          force = Math.random() * params.force.max - params.force.min + params.force.min;
 
-        particle.initialVector = particle.initialVector || {};
-
-        Object.keys(params.noise.invertionFriction).forEach(function (axis) {
-          var baseFlux = Math.round(Math.random() * force),
-            invert = baseFlux % 2 ? -1 : 1;
-
-          // compare baseFlux * invert with initialVector
-          particle.initialVector[axis] = particle.initialVector[axis] || baseFlux * invert;
-          if (!matchPolarity(baseFlux * invert, particle.initialVector[axis])) {
-            invert *= params.noise.invertionFriction[axis];
-          }
-          fluxValues[axis] = baseFlux * invert;
-        });
-        return fluxValues;
-      }
-    };
+  return function (p) {
+    params = params || Object.assign(defaultParams, p);
 
     g.particles.forEach(function (particle) {
-      if (
-        particle.noiseDestination &&
-        particle.noiseDuration > particle.startNoiseTransitionTime.getElapsedTime() * 10000
-      ) {
-        (function () {
-          // get the amount to move based on the amount of time that has passed
-          var elapsedTime = particle.startNoiseTransitionTime.getElapsedTime() * 10000;
-          var movement;
+      particle.lifeRemaining -= g.deltaTime;
+      particle.remainingNoise -= g.deltaTime;
 
-          if (particle.lifeDuration < particle.life.getElapsedTime()) {
-            g.scene.remove(particle);
-            g.particles.splice(g.particles.indexOf(particle), 1);
-            return createParticle(g);
-          }
-          var ratio = (particle.life.getElapsedTime() / particle.lifeDuration);
-          var lifeRemainaing = 1 - ratio;
-          particle.material.opacity = lifeRemainaing;
-          var updatedScale = ((particle.originalScale) * (lifeRemainaing));
-          particle.scale.set(updatedScale, updatedScale,  updatedScale);
-          movement = elapsedTime/particle.noiseDuration;
-
-          particle.position.x += (particle.noiseDestination.x - particle.position.x) * movement;
-          particle.position.y += (particle.noiseDestination.y - particle.position.y) * movement;
-          particle.position.z += (particle.noiseDestination.z - particle.position.z) * movement;
-        }());
-      } else {
-        (function setNewNoiseDestination () {
-
-          var noiseValues = motion.noise(particle);
-
-          particle.noiseDestination = {
-            x: particle.position.x + noiseValues.x,
-            y: particle.position.y + noiseValues.y,
-            z: particle.position.z + noiseValues.z
-          };
-
-          // refactor out all the clocks into one global clock
-          particle.startNoiseTransitionTime = new THREE.Clock();
-          particle.startNoiseTransitionTime.start();
-          particle.noiseDuration = Math.round(Math.random() * 4000) + 200; // in miliseconds
-        }());
-        if (!particle.life) {
-          // refactor out all the clocks into one global clock
-          particle.life =  new THREE.Clock();
-          particle.life.start();
-
-          particle.lifeDuration = (Math.random() * 3) + 1; // in mils
-        }
+      if (particle.lifeRemaining <= 0) {
+        return init(particle);
       }
+      (function handleLifeCycleAttributes () {
+        var ratio,
+          percentComplete,
+          updatedScale;
+
+        ratio = particle.lifeRemaining / particle.originalLife;
+        percentComplete = 1 - ratio;
+
+        // scale up from 0 -> 1
+        // over the first 40% of life
+        // and down over the last 50% of life
+        if (percentComplete <= 0.4) {
+          updatedScale = particle.originalScale*(percentComplete*2.5);
+          particle.scale.set(updatedScale, updatedScale, updatedScale);
+        } else if (percentComplete >= 0.5){
+          updatedScale = particle.originalScale*(ratio*2);
+          particle.scale.set(updatedScale, updatedScale, updatedScale);
+        }
+        particle.material.opacity = ratio;
+      }());
+      if (particle.remainingNoise <= 0) {
+        setNoise(particle);
+      }
+      (function movePArticle () {
+        var ratio,
+          percentComplete;
+
+        ratio = particle.remainingNoise / particle.noiseDuration;
+        percentComplete = 1 - ratio;
+
+        particle.position.set(
+          particle.lastPosition.x + (particle.noiseVector.x * percentComplete),
+          particle.lastPosition.y + (particle.noiseVector.y * percentComplete),
+          particle.lastPosition.z + (particle.noiseVector.z * percentComplete)
+        );
+      }());
     });
   };
 });

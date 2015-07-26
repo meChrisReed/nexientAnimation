@@ -1,5 +1,5 @@
-define(function () {
-  return function createScene (g) {
+define(['app/globals'],function (g) {
+  return function createScene () {
     var container = document.createElement('div');
 
     document.body.appendChild(container);
