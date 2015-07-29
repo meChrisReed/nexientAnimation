@@ -1,5 +1,6 @@
 define(['app/globals', 'app/particleSystem/init'],function (g, init) {
   var params,
+  raycaster = new THREE.Raycaster(),
     defaultParams = {
       noise: {
         invertionFriction: {
@@ -13,8 +14,8 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
         max: 0.7
       },
       timeToDestination: {
-        min: 6,
-        max: 11
+        min: 7,
+        max: 14
       }
     };
 
@@ -56,6 +57,22 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
     g.particles.forEach(function (particle) {
       particle.lifeRemaining -= g.deltaTime;
       particle.remainingNoise -= g.deltaTime;
+
+      // check for intersection
+      var castLocation = g.windObject.getWorldPosition( 0, 0, 0 );
+      raycaster.far = particle.position.distanceTo(castLocation);
+      raycaster.set(
+        castLocation,
+        particle.position
+      );
+      var intersects = raycaster.intersectObjects( [g.windObject] );
+      if (intersects[0]) {
+        particle.material.color = particle.originalColor;
+      } else {
+        particle.material.color = new THREE.Color().setHSL(0.5,1,0.5);
+      }
+      // If there is no intersection.
+      // The particle is inside of the cylinder
 
       if (particle.lifeRemaining <= 0) {
         return init(particle);

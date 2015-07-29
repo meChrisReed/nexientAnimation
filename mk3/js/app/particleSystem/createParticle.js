@@ -39,16 +39,16 @@ define([
     };
 
     // TODO look into not using mulltiple materials
-    particle = Object.assign(
-      new THREE.Sprite(
-        new THREE.SpriteCanvasMaterial({
-          // debug program
-          // color: particleAbstract.material.newColor(),
-          color: particleAbstract.material.nexientOrange,
-          program: particleAbstract.material.drawTri()
-        })
-      )
+    particle = new THREE.Sprite(
+      new THREE.SpriteCanvasMaterial({
+        // debug program
+        // color: particleAbstract.material.newColor(),
+        color: particleAbstract.material.nexientOrange,
+        program: particleAbstract.material.drawTri()
+      })
     );
+    particle.originalColor = particleAbstract.material.nexientOrange;
+
 
     g.scene.add(particle);
     g.particles.push(particle);

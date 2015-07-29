@@ -13,8 +13,8 @@ define(['app/globals'], function (g) {
       max: 30
     },
     lifeDuration: {
-      min: 1,
-      max: 5
+      min:2,
+      max: 6
     }
   };
   return function (particle, p) {
