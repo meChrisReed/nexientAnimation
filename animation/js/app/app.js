@@ -5,13 +5,15 @@ define([
   'app/lights',
   'app/particleSystem/createParticle',
   'app/particleSystem/motion',
+  'app/wind/createWind',
   'app/polyfill-assign'
 ],function (
   globals,
   createScene,
   createLights,
   createParticle,
-  motion
+  motion,
+  createWind
 ) {
   globals = Object.assign(globals, {
     clock: new THREE.Clock(),
@@ -26,18 +28,7 @@ define([
   createParticle({maxParticles: 300});
 
   // initialize wind CylinderGeometry
-  (function () {
-    var geometry = new THREE.CylinderGeometry(window.innerWidth/10, 1, window.innerWidth/10, 10 );
-    var material = new THREE.MeshLambertMaterial({
-      wireframe: true,
-      side: THREE.DoubleSide,
-      opacity: 1
-    });
-    globals.windObject = new THREE.Mesh( geometry, material );
-    globals.windObject.trackingPointWide = new THREE.Vector3(0, window.innerWidth/10, 0);
-    globals.windObject.trackingPointNarrow = new THREE.Vector3(0, 0, 0);
-		globals.scene.add( globals.windObject );
-  }());
+  createWind();
 
   globals.clock.start();
   (function render() {
@@ -50,9 +41,7 @@ define([
 
     // TESTING
     (function cylinderStuff () {
-      globals.windObject.rotateX(globals.deltaTime/2);
-      globals.windObject.rotateY(globals.deltaTime/2);
-      globals.windObject.rotateZ(globals.deltaTime/2);
+      globals.windObject.translateY(-15);
     }());
 
     motion();
