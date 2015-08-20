@@ -16,6 +16,10 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
       timeToDestination: {
         min: 7,
         max: 14
+      },
+      wind: {
+        forceMultiplier: 60,
+        noiseDurationMultiplier: 1
       }
     };
 
@@ -34,7 +38,7 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
       particle.initialVector = particle.initialVector || {};
 
       Object.keys(params.noise.invertionFriction).forEach(function (axis) {
-        var baseFlux = Math.random() * (params.force.max - params.force.min) + params.force.min,
+        var baseFlux = Math.random() * (params.force.max * particle.wind.forceMultiplier - params.force.min) + params.force.min * particle.wind.forceMultiplier,
           intermediate =  Math.round(baseFlux * 10),
           invert = intermediate % 2 ? -1 : 1;
 
@@ -46,7 +50,11 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
         fluxValues[axis] = baseFlux * invert;
       });
       particle.lastPosition = particle.position;
-      particle.noiseDuration = particle.noiseDuration || Math.random() * (params.timeToDestination.max - params.timeToDestination.min) + params.timeToDestination.min;
+      particle.noiseDuration = (
+        particle.noiseDuration || Math.random() * (
+          params.timeToDestination.max - params.timeToDestination.min
+        ) + params.timeToDestination.min
+      ) * particle.wind.noiseDurationMultiplier;
       particle.remainingNoise = particle.noiseDuration;
       particle.noiseVector = fluxValues;
     }
@@ -65,14 +73,16 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
         castLocation,
         particle.position
       );
-      var intersects = raycaster.intersectObjects( [g.windObject] );
-      if (intersects[0]) {
-        particle.material.color = particle.originalColor;
-      } else {
-        particle.material.color = new THREE.Color().setHSL(0.5,1,0.5);
-      }
       // If there is no intersection.
       // The particle is inside of the cylinder
+      var intersects = raycaster.intersectObjects( [g.windObject] );
+      if (intersects[0]) {
+        // particle.material.color = particle.originalColor;
+      } else {
+        particle.material.color = new THREE.Color().setHSL(0.5,1,0.4);
+        particle.wind = params.wind;
+        particle.remainingNoise = -1;
+      }
 
       if (particle.lifeRemaining <= 0) {
         return init(particle);
