@@ -1,7 +1,7 @@
 define([
   'app/globals',
   'app/wind/init'
-], function (g, init) {
+], function (g) {
   var params,
     defaultParams = {
       wideWidth: window.innerWidth/2,
@@ -9,6 +9,7 @@ define([
       height: window.innerWidth/4,
       segments: 10
     };
+
   return function (p) {
     var geometry,
       material;
@@ -28,7 +29,5 @@ define([
     });
     g.windObject = new THREE.Mesh( geometry, material );
 		g.scene.add( g.windObject );
-
-    init();
   };
 });

@@ -42,12 +42,18 @@ define(['app/globals'], function (g) {
     };
 
     (function resetLifeCycle () {
+      particle.material.color = particle.originalColor;
       particle.originalScale = particleAbstract.scale;
       particle.originalLife = Math.random() * (params.lifeDuration.max - params.lifeDuration.min) + params.lifeDuration.min;
       particle.lifeRemaining = particle.originalLife;
 
       particle.remainingNoise = 0;
       particle.initialVector = {};
+
+      particle.wind = {
+        forceMultiplier: 1,
+        noiseDurationMultiplier: 1
+      };
     }());
 
     (function initializeProperties () {

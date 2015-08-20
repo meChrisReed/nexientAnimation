@@ -6,6 +6,7 @@ define([
   'app/particleSystem/createParticle',
   'app/particleSystem/motion',
   'app/wind/createWind',
+  'app/wind/init',
   'app/polyfill-assign'
 ],function (
   globals,
@@ -13,7 +14,8 @@ define([
   createLights,
   createParticle,
   motion,
-  createWind
+  createWind,
+  windInit
 ) {
   globals = Object.assign(globals, {
     clock: new THREE.Clock(),
@@ -30,6 +32,10 @@ define([
   // initialize wind CylinderGeometry
   createWind();
 
+  window.addEventListener('click', function () {
+    windInit();
+  });
+
   globals.clock.start();
   (function render() {
     requestAnimationFrame( render );
@@ -41,7 +47,7 @@ define([
 
     // TESTING
     (function cylinderStuff () {
-      globals.windObject.translateY(-15);
+      globals.windObject.translateY(-20);
     }());
 
     motion();
