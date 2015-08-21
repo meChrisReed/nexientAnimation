@@ -11,7 +11,7 @@ define(['app/globals'], function (g) {
     params = params || Object.assign(defaultParams, p);
     // reset the cone
     g.windObject.position.set(0,0,0);
-    
+
     g.windObject.rotateX(params.rotation.x || Math.random() * 360);
     g.windObject.rotateY(params.rotation.y || Math.random() * 360);
     g.windObject.rotateZ(params.rotation.z || Math.random() * 360);

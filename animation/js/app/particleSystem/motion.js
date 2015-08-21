@@ -10,7 +10,7 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
         }
       },
       force: {
-        min: 0.01,
+        min: 0.02,
         max: 0.7
       },
       timeToDestination: {
@@ -76,10 +76,21 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
       // If there is no intersection.
       // The particle is inside of the cylinder
       var intersects = raycaster.intersectObjects( [g.windObject] );
-      if (intersects[0]) {
-        // particle.material.color = particle.originalColor;
-      } else {
-        particle.material.color = new THREE.Color().setHSL(0.5,1,0.4);
+      var greatestDistance = (function (vector) {
+        return Math.max(
+          Math.abs(vector.x),
+          Math.abs(vector.y),
+          Math.abs(vector.z)
+        );
+      }(g.windObject.position));
+      if (
+        // if there is not an intersection
+        !intersects[0] &&
+        // if this cylinder has not already passed throuhg the particle field
+        greatestDistance < window.innerWidth &&
+        greatestDistance > -window.innerWidth
+      ) {
+        particle.material.color = new THREE.Color().setHSL(0.572,1,0.78);
         particle.wind = params.wind;
         particle.remainingNoise = -1;
       }

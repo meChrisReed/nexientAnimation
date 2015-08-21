@@ -1,10 +1,11 @@
 (function () {
   requirejs.config({
-      baseUrl: 'js/vendor/',
-      paths: {
-          app: '../app'
-      }
+      baseUrl: 'js/',
   });
 
-  requirejs(['app/app']);
+  requirejs(['app/app'], function (nexientAnimation) {
+    window.addEventListener('click', function () {
+      nexientAnimation.play();
+    });
+  });
 }());

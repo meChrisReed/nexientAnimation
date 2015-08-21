@@ -5,7 +5,7 @@ define([
   var params,
     defaultParams = {
       // intiger, particles alive at any moment
-      maxParticles: 10
+      maxParticles: 300
     };
 
   return function createParticle (p) {
@@ -18,7 +18,7 @@ define([
     // aditional methods and computed properties to help create a particle
     particleAbstract = {
       material: {
-        nexientOrange: new THREE.Color().setHSL(0.039,1,0.5),
+        nexientOrange: new THREE.Color().setHSL(0.0888,1,0.5),
 
         newColor: function () {
           return new THREE.Color().setHSL(Math.random(),1,0.5);

@@ -4,7 +4,7 @@ define([
 ], function (g) {
   var params,
     defaultParams = {
-      wideWidth: window.innerWidth/2,
+      wideWidth: window.innerWidth,
       narrowWidth: 1,
       height: window.innerWidth/4,
       segments: 10
@@ -23,11 +23,12 @@ define([
       params.segments
     );
     material = new THREE.MeshLambertMaterial({
-      wireframe: false,
+      wireframe: true,
       side: THREE.DoubleSide,
       opacity: 0
     });
     g.windObject = new THREE.Mesh( geometry, material );
 		g.scene.add( g.windObject );
+    g.windObject.translateZ(window.innerWidth);
   };
 });

@@ -27,14 +27,10 @@ define([
   createLights();
 
   // initialize particles
-  createParticle({maxParticles: 300});
+  createParticle({maxParticles: 125});
 
   // initialize wind CylinderGeometry
   createWind();
-
-  window.addEventListener('click', function () {
-    windInit();
-  });
 
   globals.clock.start();
   (function render() {
@@ -53,4 +49,10 @@ define([
     motion();
     globals.renderer.render( globals.scene, globals.camera );
   }());
+
+  return {
+    play: function () {
+      windInit();
+    }
+  };
 });

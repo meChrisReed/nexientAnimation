@@ -10,10 +10,10 @@ define(['app/globals'], function (g) {
     // particle scale
     scale: {
       min: 5,
-      max: 30
+      max: 40
     },
     lifeDuration: {
-      min:2,
+      min: 2,
       max: 6
     }
   };
