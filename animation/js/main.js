@@ -2,10 +2,19 @@
   requirejs.config({
       baseUrl: 'js/',
   });
-
+  // usage example
+  // require it in
   requirejs(['app/app'], function (nexientAnimation) {
+    // initialize the system.
+    // every function has a defaultParams object that shows the available params
+    nexientAnimation.initialize({
+      particles: {
+        maxParticles: 50
+      }
+    });
     window.addEventListener('click', function () {
-      nexientAnimation.play();
+      // play the wind portion ofthe animation
+      nexientAnimation.makeWind();
     });
   });
 }());

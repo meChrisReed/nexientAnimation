@@ -19,7 +19,8 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
       },
       wind: {
         forceMultiplier: 60,
-        noiseDurationMultiplier: 1
+        noiseDurationMultiplier: 1,
+        moveSpeed: 20
       }
     };
 
@@ -61,6 +62,8 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
 
   return function (p) {
     params = params || Object.assign(defaultParams, p);
+
+    g.windObject.translateY(-params.wind.moveSpeed);
 
     g.particles.forEach(function (particle) {
       particle.lifeRemaining -= g.deltaTime;

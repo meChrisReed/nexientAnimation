@@ -17,42 +17,46 @@ define([
   createWind,
   windInit
 ) {
-  globals = Object.assign(globals, {
-    clock: new THREE.Clock(),
-    particles: []
-  });
+  function initialize(params) {
+    var defaultParams = {
+      particles: {},
+      wind: {},
+      motion: {}
+    };
 
-  // cerate scene
-  createScene();
-  createLights();
+    params = Object.assign(defaultParams, params);
 
-  // initialize particles
-  createParticle({maxParticles: 125});
+    globals = Object.assign(globals, {
+      clock: new THREE.Clock(),
+      particles: []
+    });
 
-  // initialize wind CylinderGeometry
-  createWind();
+    // cerate scene
+    createScene();
+    createLights();
 
-  globals.clock.start();
-  (function render() {
-    requestAnimationFrame( render );
+    // initialize particles
+    createParticle(params.particles);
 
-    globals.deltaTime = globals.clock.getDelta();
-    globals.currentTime += globals.deltaTime;
+    // initialize wind CylinderGeometry
+    createWind(params.wind);
 
-    globals.scene.updateMatrixWorld();
+    globals.clock.start();
+    (function render() {
+      requestAnimationFrame( render );
 
-    // TESTING
-    (function cylinderStuff () {
-      globals.windObject.translateY(-20);
+      globals.deltaTime = globals.clock.getDelta();
+      globals.currentTime += globals.deltaTime;
+
+      globals.scene.updateMatrixWorld();
+
+      motion(params.motion);
+      globals.renderer.render( globals.scene, globals.camera );
     }());
-
-    motion();
-    globals.renderer.render( globals.scene, globals.camera );
-  }());
+  }
 
   return {
-    play: function () {
-      windInit();
-    }
+    initialize: initialize,
+    makeWind: windInit
   };
 });
