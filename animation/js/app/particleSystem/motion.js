@@ -1,6 +1,6 @@
 define(['app/globals', 'app/particleSystem/init'],function (g, init) {
   var params,
-  raycaster = new THREE.Raycaster(),
+  raycaster,
     defaultParams = {
       noise: {
         // resistance to moving along an axis
@@ -62,6 +62,7 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
     }
 
   return function (p) {
+    raycaster = raycaster || new THREE.Raycaster();
     params = params || Object.assign(defaultParams, p);
 
     g.windObject.translateY(-params.wind.moveSpeed);
