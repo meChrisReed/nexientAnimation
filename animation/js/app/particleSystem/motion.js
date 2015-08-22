@@ -3,6 +3,7 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
   raycaster = new THREE.Raycaster(),
     defaultParams = {
       noise: {
+        // resistance to moving along an axis
         invertionFriction: {
           x: 0.9,
           y: 0.3,
@@ -38,7 +39,7 @@ define(['app/globals', 'app/particleSystem/init'],function (g, init) {
 
       particle.initialVector = particle.initialVector || {};
 
-      Object.keys(params.noise.invertionFriction).forEach(function (axis) {
+      Object.keys( params.noise.invertionFriction ).forEach(function (axis) {
         var baseFlux = Math.random() * (params.force.max * particle.wind.forceMultiplier - params.force.min) + params.force.min * particle.wind.forceMultiplier,
           intermediate =  Math.round(baseFlux * 10),
           invert = intermediate % 2 ? -1 : 1;

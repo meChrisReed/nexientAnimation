@@ -35,10 +35,10 @@ define([
     createScene();
     createLights();
 
-    // initialize particles
+    // add particles to the scene with some basic properties
     createParticle(params.particles);
 
-    // initialize wind CylinderGeometry
+    // add wind CylinderGeometry to the scene with some absic properties
     createWind(params.wind);
 
     globals.clock.start();

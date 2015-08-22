@@ -4,11 +4,12 @@ define([
 ],function (g, init) {
   var params,
     defaultParams = {
-      // intiger, particles alive at any moment
+      // intiger, total particles in the scene
       maxParticles: 300
     };
 
   return function createParticle (p) {
+    // particleAbstract the nescicary methods that all particles share
     var particleAbstract,
       particle;
 
