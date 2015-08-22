@@ -9,7 +9,7 @@
     // every function has a defaultParams object that shows the available params
     nexientAnimation.initialize({
       particles: {
-        maxParticles: 50
+        maxParticles: 125
       }
     });
     window.addEventListener('click', function () {

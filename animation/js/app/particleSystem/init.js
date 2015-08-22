@@ -2,7 +2,6 @@ define(['app/globals'], function (g) {
   var params,
     defaultParams = {
     // furthest distrobution of particle start positions
-    // TEST VALUE = window.innerWidth/8 was window.innerWidth/4
     upperDistanceX: window.innerWidth/4,
     lowwerDistanceX: 5,
     // can take the strings 'distribute' or 'showEnds'

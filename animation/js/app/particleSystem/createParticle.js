@@ -9,7 +9,6 @@ define([
     };
 
   return function createParticle (p) {
-    // particleAbstract the nescicary methods that all particles share
     var particleAbstract,
       particle;
 
@@ -24,6 +23,7 @@ define([
         newColor: function () {
           return new THREE.Color().setHSL(Math.random(),1,0.5);
         },
+
         drawTri: function (context) {
           var direction = Math.round(Math.random()) % 2 ? 1 : -1;
           return function (context) {
@@ -50,10 +50,9 @@ define([
     );
     particle.originalColor = particleAbstract.material.nexientOrange;
 
-
     g.scene.add(particle);
     g.particles.push(particle);
-    init(particle);
+    init(particle, params);
 
     if (g.particles.length < params.maxParticles) {
       return createParticle(g);
