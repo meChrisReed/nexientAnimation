@@ -2,6 +2,7 @@
   "name": "nexient-animation",
   "version": "1.0.0",
   "description": "",
+  "repository": "https://github.com/meChrisReed/nexientAnimation",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
