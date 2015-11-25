@@ -1,0 +1,26 @@
+{
+  "name": "nexient-animation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "deploy": "webpack"
+  },
+  "author": "Chris Reed",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.2.1",
+    "babel-loader": "^6.2.0",
+    "babel-preset-es2015": "^6.1.18",
+    "css-loader": "^0.23.0",
+    "html-webpack-plugin": "^1.7.0",
+    "monkey-hot-loader": "0.0.3",
+    "style-loader": "^0.13.0",
+    "webpack": "^1.12.8",
+    "webpack-dev-server": "^1.12.1"
+  },
+  "dependencies": {
+    "three": "^0.71.0"
+  }
+}

@@ -468,7 +468,7 @@ THREE.Projector = function () {
 					_normalMatrix.getNormalMatrix( _modelMatrix );
 
 					var material = object.material;
-					
+
 					var isFaceMaterial = material instanceof THREE.MeshFaceMaterial;
 					var objectMaterials = isFaceMaterial === true ? object.material : null;
 
